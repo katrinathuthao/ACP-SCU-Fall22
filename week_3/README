@@ -1,0 +1,11 @@
+#run mydba container
+#I had problem running my_dba/Dockerfile, had to use below command line to get  mydba container 
+docker pull dpage/pgadmin4
+docker run -p 80:80 -e 'PGADMIN_DEFAULT_EMAIL=admin@admin.com' -e 'PGADMIN_DEFAULT_PASSWORD=pass' --network mynetwork --name mydba -d dpage/pgadmin4
+
+#run mydb container
+docker run --name mydb -p 5432:5432 --network mynetwork  -itd my_db
+
+#run myapp container
+docker run -it --network mynetwork --name myapp -p 8000:8000 -v "$(pwd)/vol_app:/app" my_django /bin/bash
+
