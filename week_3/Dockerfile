@@ -9,6 +9,7 @@ VOLUME /vol_app
 WORKDIR /app
 
 EXPOSE 8000
+CMD ["/bin/bash", "-c", "python myapp/manage.py migrate && python myapp/manage.py runserver 0.0.0.0:8000"]
 #@ this pt, must run in interactive mode
 #-it = i want the docker run in interactive mode and also give a terminal
 #docker run -it -p 8000:8000-v "$(pwd)/vol_app:/app" my_django /bin/bash
