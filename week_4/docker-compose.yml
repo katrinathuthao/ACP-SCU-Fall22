@@ -1,0 +1,31 @@
+version: '3.9'
+#docker compose comes with a predefined network
+
+services: #these below names automaticaly become containers name
+  api:
+    build: ./api
+    hostname: api #hostname is optional
+    env_file:
+      - .env 
+    volumes:
+      - ./api/code:/app #api's folder code is mapped into Docker container app
+    ports:
+      - "${API_PORT}:${API_PORT}"
+  consumer:
+    build: ./consumer
+    hostname: consumer
+    env_file:
+      - .env
+    volumes:
+      - ./consumer/code:/app #api's folder code is mapped into Docker container app
+    ports: 
+      - "${CONSUMER_PORT}:${CONSUMER_PORT}"
+
+
+
+    
+    
+
+    
+#docker-compose up
+    
