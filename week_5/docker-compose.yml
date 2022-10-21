@@ -1,0 +1,70 @@
+version: '3.9'
+#docker compose comes with a predefined network
+
+services: #these below names automaticaly become containers name
+  db:
+    image: postgres:15
+    hostname: db
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "${DB_PORT}:${DB_PORT}" #local port: port the file is on
+    volumes: 
+      - ./db/pgdata:/var/lib/postgresql/data
+      # copy the sql script to create tables
+      - ./db/data/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      # copy the sql script to fill tables
+      - ./db/data/fill_tables.sql:/docker-entrypoint-initdb.d/fill_tables.sql
+  db_admin:
+    image: dpage/pgadmin4:6.15
+    hostname: dba
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGA_ADMIN_NAME}
+      - PGADMIN_DEFAULT_PASSWORD=${PGA_ADMIN_PASS}
+    volumes:
+      - ./dba/data/pgadmin_data:/var/lib/pgadmin
+      - ./dba/server.json:/pgadmin4/servers.json # preconfigured servers/connections
+      - ./dba/pgpass:/pgadmin4/pgpass # passwords for the connections in this file
+      # - pgadmin:/var/lib/pgadmin
+    ports:
+      - "8008:${PGA_PORT}"
+    depends_on:
+       - db
+  api:
+    build: ./api
+    hostname: api #hostname is optional
+    environment:
+      - API_PORT=${API_PORT}
+      - API_ENDPOINT=${API_ENDPOINT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - ./api/code:/app #api's folder code is mapped into Docker container app
+    links:
+      - db
+    ports:
+      - "${API_PORT}:${API_PORT}"
+  consumer:
+    build: ./consumer
+    hostname: consumer
+    environment:
+      - API_PORT=${API_PORT}
+      - API_HOST=${API_HOST}
+      - API_ENDPOINT=${API_ENDPOINT}
+      - CONSUMER_PORT=${CONSUMER_PORT}
+    volumes:
+      - ./consumer/code:/app #api's folder code is mapped into Docker container app
+    ports: 
+      - "80:${CONSUMER_PORT}"
+
+    
+
+    
+#docker-compose up
+    
